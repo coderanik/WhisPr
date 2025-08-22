@@ -8,7 +8,7 @@ const SALT_ROUNDS = 10;
 
 // ⬇️ Updated registration range
 const REGISTRATION_RANGE = {
-  min: 2411033010004,
+  min: 2411033010001,
   max: 2411033010057,
 };
 
