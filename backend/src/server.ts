@@ -10,6 +10,8 @@ import { MessageScheduler } from "./utils/scheduler";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.set("trust proxy", 1); 
+
 // CORS configuration
 app.use(cors({
   origin: [
