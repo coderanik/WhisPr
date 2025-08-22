@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node src/server.ts",
+    "start": "node dist/server.js",
     "setup-redis": "./setup-redis.sh",
     "redis-status": "redis-cli ping"
   },
