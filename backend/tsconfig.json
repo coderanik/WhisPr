@@ -8,7 +8,7 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "noEmit": true,
+    "noEmit": false,
     "skipLibCheck": true,
     "types": ["node", "express-session"],
     "typeRoots": ["./src/types", "./node_modules/@types"]
