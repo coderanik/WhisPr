@@ -1,6 +1,7 @@
 import express from "express";
 import { messageControllers } from "../controllers/messageControllers";
 import { authenticateUser } from "../middlewares/auth";
+import { checkDatabaseConnection } from "../middlewares/dbCheck";
 import rateLimit from "express-rate-limit";
 
 const router = express.Router();
@@ -18,13 +19,13 @@ const messageRateLimit = rateLimit({
 });
 
 // Apply rate limiting to message creation
-router.post("/create", messageRateLimit, authenticateUser, messageControllers.createMessage);
+router.post("/create", messageRateLimit, checkDatabaseConnection, authenticateUser, messageControllers.createMessage);
 
 // Get forum messages (public, no authentication required)
-router.get("/forum", messageControllers.getForumMessages);
+router.get("/forum", checkDatabaseConnection, messageControllers.getForumMessages);
 
 // Get user's own messages (requires authentication)
-router.get("/my-messages", authenticateUser, messageControllers.getUserMessages);
+router.get("/my-messages", checkDatabaseConnection, authenticateUser, messageControllers.getUserMessages);
 
 
 

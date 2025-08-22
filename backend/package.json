@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node src/server.ts"
+    "start": "node src/server.ts",
+    "setup-redis": "./setup-redis.sh",
+    "redis-status": "redis-cli ping"
   },
   "keywords": [],
   "author": "coderanik",
@@ -22,6 +24,7 @@
     "express-session": "^1.18.1",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.18.0",
     "mongoose": "^8.16.2",
     "redis": "^5.6.0"
   },

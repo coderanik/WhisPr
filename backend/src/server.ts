@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import cors from "cors";
-import db from "./config/db";
+import StartupManager from "./startup";
 import sessionMiddleware from "./middlewares/session";
 import authRouter from "./routes/authRoutes";
 import messageRouter from "./routes/messageRoutes";
@@ -29,14 +29,63 @@ app.use(cors({
 app.options("*", cors());
 
 
-// Initialize database
-db();
+// Initialize application with startup manager
+const startupManager = new StartupManager();
 
-// Start message cleanup scheduler
-MessageScheduler.startDailyCleanup();
+// Wait for startup to complete before starting the server
+startupManager.start().then((success) => {
+  if (success) {
+    console.log('🚀 Application initialized successfully');
+    
+    // Start message cleanup scheduler
+    try {
+      MessageScheduler.startDailyCleanup();
+      console.log('✅ Message cleanup scheduler started');
+    } catch (error) {
+      console.error('❌ Failed to start message cleanup scheduler:', error);
+    }
+    
+    // Start the server only after successful initialization
+    // Server startup is now handled by the startup manager
+  } else {
+    console.error('❌ Application startup failed');
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🔄 Continuing with limited functionality...');
+      // Start server anyway for production
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT} (limited functionality)`);
+      });
+    } else {
+      console.error('❌ Exiting due to startup failure in development mode');
+      process.exit(1);
+    }
+  }
+}).catch((error) => {
+  console.error('❌ Startup error:', error);
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔄 Continuing with limited functionality...');
+    // Start server anyway for production
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT} (limited functionality)`);
+    });
+  } else {
+    console.error('❌ Exiting due to startup error in development mode');
+    process.exit(1);
+  }
+});
 
 app.use(express.json());
 app.use(sessionMiddleware);
+
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 app.use("/api/auth", authRouter);
 app.use("/api/messages", messageRouter);
