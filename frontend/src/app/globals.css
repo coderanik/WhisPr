@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-float-in {
+  animation: float-in 0.7s cubic-bezier(.22,1,.36,1) both;
+}
+
+body {
+  background: linear-gradient(135deg, #f0f6ff 0%, #e6f0fa 100%);
+  color: #22223b;
+  font-family: 'Geist', Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+main {
+  padding-bottom: 40px;
+}
+
+h1, h2, h3 {
+  color: #2274a5;
+  font-weight: 700;
+}
