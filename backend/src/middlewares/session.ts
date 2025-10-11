@@ -20,13 +20,11 @@ const initRedis = async () => {
     console.log('🔄 Attempting to connect to Redis...');
     
     redisClient = createClient({
-      username: process.env.NODE_ENV === 'production' ? 'default' : undefined,
-      password: process.env.NODE_ENV === 'production' ? '3LaIN6E2mNFBrEn1xXHgn9snIzt2Wn4f' : undefined,
+      username: process.env.REDIS_USERNAME || undefined,
+      password: process.env.REDIS_PASSWORD || undefined,
       socket: {
-        host: process.env.NODE_ENV === 'production' 
-          ? 'redis-13091.c8.us-east-1-4.ec2.redns.redis-cloud.com' 
-          : '127.0.0.1',
-        port: process.env.NODE_ENV === 'production' ? 13091 : 6379,
+        host: process.env.REDIS_HOST || '127.0.0.1',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
         connectTimeout: 5000,
         reconnectStrategy: (retries) => {
           if (retries > 3) {
@@ -76,7 +74,9 @@ initRedis().catch(console.error);
 
 const sessionMiddleware = session({
   store: redisStore || undefined, // Use Redis store if available, otherwise use memory store
-  secret: process.env.SESSION_SECRET || 'supersecretkey',
+  secret: process.env.SESSION_SECRET || (() => {
+    throw new Error('SESSION_SECRET environment variable is required');
+  })(),
   resave: false,
   saveUninitialized: false,
   cookie: {

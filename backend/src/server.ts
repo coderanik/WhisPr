@@ -48,8 +48,10 @@ startupManager.start().then((success) => {
       console.error('❌ Failed to start message cleanup scheduler:', error);
     }
     
-    // Start the server only after successful initialization
-    // Server startup is now handled by the startup manager
+    // Start the server after successful initialization
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
   } else {
     console.error('❌ Application startup failed');
     if (process.env.NODE_ENV === 'production') {
@@ -97,9 +99,7 @@ app.get("/", (_req, res) => {
   res.send("Backend is working");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Remove the duplicate app.listen call here since it's now handled in the startup logic
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

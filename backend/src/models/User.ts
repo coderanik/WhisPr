@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
+    anonymousName: {
       type: String,
       unique: true,
       required: true,
@@ -27,5 +27,16 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Add pre-save hook to debug what's being saved
+UserSchema.pre('save', function(next) {
+  console.log('🔍 Pre-save hook - Document data:', this.toObject());
+  next();
+});
+
+// Force clear any cached models
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
 
 export default mongoose.model("User", UserSchema);

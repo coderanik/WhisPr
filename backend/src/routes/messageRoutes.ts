@@ -32,4 +32,13 @@ router.get("/my-messages", checkDatabaseConnection, authenticateUser, messageCon
 // Get message count for rate limiting (requires authentication)
 router.get("/count", authenticateUser, messageControllers.getMessageCount);
 
+// Get community stats (public endpoint)
+router.get("/stats", checkDatabaseConnection, messageControllers.getCommunityStats);
+
+// Like/unlike a message (requires authentication)
+router.post("/:messageId/like", messageRateLimit, checkDatabaseConnection, authenticateUser, messageControllers.toggleLike);
+
+// Report a message (requires authentication)
+router.post("/:messageId/report", messageRateLimit, checkDatabaseConnection, authenticateUser, messageControllers.reportMessage);
+
 export default router; 

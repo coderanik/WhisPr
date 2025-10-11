@@ -1,152 +1,128 @@
 # Whispr Backend API
 
-A secure, anonymous messaging forum with encryption and rate limiting.
+A secure, anonymous messaging platform backend built with Node.js, Express, and MongoDB.
 
-## Features
+## 🔐 Authentication System
 
-- **Secure Encryption**: All messages are encrypted using AES encryption
-- **User Names**: Messages display the user's registered name
-- **Rate Limiting**: 5 messages per minute per user
-- **Auto Cleanup**: Messages are automatically deactivated after 24 hours
-- **Privacy Focused**: Even developers cannot see actual message content
-- **No Deletion**: Once posted, messages cannot be deleted
+### Anonymous User Registration
+- Users register using only their **registration number (regNo)** and **password**
+- No personal names or identifying information are collected
+- System automatically generates a unique **anonymous name** for each user
+- The same registration number always generates the same anonymous name
+- Anonymous names are hidden from developers and administrators
 
-## API Endpoints
+### Login Process
+- Users login using their **registration number** and **password**
+- No need to remember or enter the anonymous name
+- System authenticates based on the stored credentials
+- JWT tokens are issued for session management
+
+### Security Features
+- Registration numbers are validated against allowed ranges
+- Passwords and registration numbers are securely hashed using bcrypt
+- Rate limiting prevents brute force attacks
+- Session-based authentication with JWT fallback
+- Anonymous names are cryptographically generated and consistent
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js >= 18.0.0
+- MongoDB
+- Redis (for session storage)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. Set up Redis:
+   ```bash
+   npm run setup-redis
+   ```
+
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📡 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
+- `POST /api/auth/register` - Register with regNo and password
+- `POST /api/auth/login` - Login with regNo and password
+- `POST /api/auth/logout` - Logout and clear session
 
 ### Messages
+- `GET /api/messages/forum` - Get public forum messages
+- `POST /api/messages/create` - Create a new message (authenticated)
+- `GET /api/messages/user` - Get user's own messages (authenticated)
+- `GET /api/messages/count` - Get message count for rate limiting (authenticated)
 
-#### Create Message
-```
-POST /api/messages/create
-Authorization: Bearer <token>
-Content-Type: application/json
+## 🧪 Testing
 
-{
-  "content": "Your message here (max 1000 characters)"
-}
-```
+Run the test suite to verify the authentication system:
 
-**Response:**
-```json
-{
-  "message": "Message posted successfully",
-  "displayName": "John Doe",
-  "messageId": "message_id_here"
-}
+```bash
+# Test the anonymous authentication system
+node test-anonymous-auth.js
+
+# Test the message API
+node test-messages.js
 ```
 
-#### Get Forum Messages (Public)
-```
-GET /api/messages/forum
-```
+## 🔧 Configuration
 
-**Response:**
-```json
-{
-  "messages": [
-    {
-      "displayName": "John Doe",
-      "postedAt": "2024-01-01T12:00:00.000Z",
-      "messageDate": "2024-01-01T12:00:00.000Z"
-    }
-  ]
-}
+### Registration Range
+The system validates registration numbers against a predefined range:
+```typescript
+const REGISTRATION_RANGE = {
+  min: 2411033010001,
+  max: 2411033010057,
+};
 ```
 
-#### Get User's Own Messages
-```
-GET /api/messages/my-messages
-Authorization: Bearer <token>
-```
+### Anonymous Name Generation
+Anonymous names are generated using a combination of:
+- Adjectives (e.g., Mysterious, Silent, Hidden)
+- Nouns (e.g., Observer, Watcher, Listener)
+- Unique identifiers based on registration number hash
 
-**Response:**
-```json
-{
-  "messages": [
-    {
-      "id": "message_id",
-      "content": "Your decrypted message content",
-      "displayName": "MysteriousWalker123",
-      "postedAt": "2024-01-01T12:00:00.000Z"
-    }
-  ]
-}
+## 🛡️ Security Considerations
+
+- **No Personal Data**: The system never stores or processes personal names
+- **Cryptographic Consistency**: Same regNo always generates same anonymous name
+- **Developer Privacy**: Anonymous names are hidden from system administrators
+- **Rate Limiting**: Prevents abuse and brute force attacks
+- **Secure Hashing**: All sensitive data is properly hashed using bcrypt
+
+## 📁 Project Structure
+
 ```
-
-
-
-#### Get Message Count (Rate Limiting)
-```
-GET /api/messages/count
-Authorization: Bearer <token>
-```
-
-**Response:**
-```json
-{
-  "messageCount": 2,
-  "limit": 5,
-  "remaining": 3
-}
+src/
+├── config/          # Database and Redis configuration
+├── controllers/     # Route controllers
+├── middlewares/     # Authentication and validation middleware
+├── models/          # MongoDB models
+├── routes/          # API route definitions
+├── types/           # TypeScript type definitions
+├── utils/           # Utility functions including anonymous name generation
+└── server.ts        # Main server file
 ```
 
+## 🚀 Deployment
 
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
-## Security Features
+## 🧪 Development
 
-1. **Message Encryption**: All messages are encrypted using AES-256
-2. **User Names**: Messages display the user's registered name
-3. **Rate Limiting**: 5 messages per minute per user
-4. **Auto Cleanup**: Messages deactivated after 24 hours
-5. **Privacy**: Even developers cannot decrypt messages without proper access
-6. **No Deletion**: Messages cannot be deleted once posted
-
-## Environment Variables
-
-```env
-ENCRYPTION_KEY=your-super-secret-encryption-key-32-chars
-JWT_SECRET=your-jwt-secret
-MONGODB_URI=your-mongodb-connection-string
-REDIS_URL=your-redis-connection-string
-```
-
-## Rate Limiting
-
-- **Per User**: 5 messages per minute
-- **Per IP**: 5 requests per minute for message creation
-- **Automatic**: Messages are deactivated after 24 hours
-
-## Message Lifecycle
-
-1. User creates message → Content encrypted → Stored with user's registered name
-2. Other users see only user names in forum
-3. User can see their own decrypted messages
-4. Messages automatically deactivated after 24 hours
-5. Daily cleanup process removes old messages
-6. Messages cannot be deleted once posted
-
-## Error Responses
-
-```json
-{
-  "error": "Rate limit exceeded. You can only post 5 messages per minute.",
-  "retryAfter": 60
-}
-```
-
-```json
-{
-  "error": "Message cannot exceed 1000 characters"
-}
-```
-
-```json
-{
-  "error": "Authentication required"
-}
-``` 
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for development setup and guidelines. 

@@ -2,8 +2,12 @@ import express, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import { AnonymousNameGenerator } from '../utils/anonymousNames';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 const SALT_ROUNDS = 10;
 
 // ⬇️ Updated registration range
@@ -22,10 +26,10 @@ function isValidRegistration(regNo: string): boolean {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, regNo, password } = req.body as { name: string; regNo: string; password: string };
+    const { regNo, password } = req.body as { regNo: string; password: string };
 
-    if (!name || !regNo || !password) {
-      return res.status(400).json({ message: 'Name, registration number, and password are required' });
+    if (!regNo || !password) {
+      return res.status(400).json({ message: 'Registration number and password are required' });
     }
 
     // ⬇️ Check if regNo is within allowed range
@@ -33,10 +37,19 @@ export const register = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Registration number not allowed' });
     }
 
-    // ⬇️ Check for unique name
-    const existingName = await User.findOne({ name });
-    if (existingName) {
-      return res.status(409).json({ message: 'Username already taken' });
+    // ⬇️ Check if user with this regNo already exists
+    const existingUser = await User.findOne({ regNoHash: await bcrypt.hash(regNo.toString(), SALT_ROUNDS) });
+    if (existingUser) {
+      return res.status(409).json({ message: 'User with this registration number already exists' });
+    }
+
+    // ⬇️ Generate anonymous name based on regNo
+    const anonymousName = AnonymousNameGenerator.generateAnonymousName(regNo);
+    
+    // ⬇️ Check if anonymous name is unique (should be, but just in case)
+    const existingAnonymousName = await User.findOne({ anonymousName });
+    if (existingAnonymousName) {
+      return res.status(409).json({ message: 'Anonymous name conflict. Please try again.' });
     }
 
     // ⬇️ Hash regNo and password
@@ -44,14 +57,23 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const newUser = new User({
-      name,
+      anonymousName,
       regNoHash,
       passwordHash,
     });
 
+    console.log('🔍 About to save user with data:', {
+      anonymousName: newUser.anonymousName,
+      regNoHash: newUser.regNoHash ? '***HASHED***' : 'undefined',
+      passwordHash: newUser.passwordHash ? '***HASHED***' : 'undefined'
+    });
+
     await newUser.save();
 
-    return res.status(201).json({ message: 'User registered successfully' });
+    return res.status(201).json({ 
+      message: 'User registered successfully',
+      anonymousName: anonymousName // Return the anonymous name to the user
+    });
 
   } catch (error) {
     console.error('Registration error:', error);
@@ -61,13 +83,24 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { name, regNo, password } = req.body as { name: string; regNo: string; password: string };
+    const { regNo, password } = req.body as { regNo: string; password: string };
 
-    if (!name || !regNo || !password) {
-      return res.status(400).json({ message: 'All fields required' });
+    if (!regNo || !password) {
+      return res.status(400).json({ message: 'Registration number and password are required' });
     }
 
-    const user = await User.findOne({ name });
+    // ⬇️ Find user by comparing regNo with all stored hashes
+    const users = await User.find({});
+    let user = null;
+    
+    for (const u of users) {
+      const isRegNoMatch = await bcrypt.compare(regNo.toString(), u.regNoHash);
+      if (isRegNoMatch) {
+        user = u;
+        break;
+      }
+    }
+    
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -90,11 +123,10 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // 🔐 Validate credentials
-    const isRegMatch = await bcrypt.compare(regNo.toString(), user.regNoHash);
+    // 🔐 Validate password
     const isPassMatch = await bcrypt.compare(password, user.passwordHash);
 
-    if (!isRegMatch || !isPassMatch) {
+    if (!isPassMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -107,11 +139,11 @@ export const login = async (req: Request, res: Response) => {
 
     // 💾 Set session
     req.session.userId = user._id.toString();
-    req.session.username = user.name;
+    req.session.anonymousName = user.anonymousName;
 
     // 🔐 Generate JWT
     const token = jwt.sign(
-      { userId: user._id, name: user.name },
+      { userId: user._id, anonymousName: user.anonymousName },
       JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -119,6 +151,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: 'Login successful',
       token,
+      anonymousName: user.anonymousName,
       loginCount: user.loginCount,
     });
 

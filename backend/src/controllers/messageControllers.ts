@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import Message from "../models/Message";
+import User from "../models/User";
 import { MessageEncryption } from "../utils/encryption";
 
 interface AuthenticatedRequest extends Request {
   user?: {
     _id: string;
-    name: string;
+    anonymousName: string;
   };
 }
 
@@ -48,8 +49,8 @@ export const messageControllers = {
         });
       }
 
-      // Use the user's registered name from database
-      const displayName = req.user.name;
+      // Use the user's anonymous name from database
+      const displayName = req.user.anonymousName;
 
       // Encrypt the message content
       const encryptedContent = MessageEncryption.encrypt(content);
@@ -88,12 +89,13 @@ export const messageControllers = {
         messageDate: { $gte: oneDayAgo },
         isActive: true
       })
-      .select('userDisplayName encryptedContent messageDate createdAt')
+      .select('_id userDisplayName encryptedContent messageDate createdAt')
       .sort({ createdAt: -1 })
       .limit(100); // Limit to prevent overwhelming response
 
       res.json({
         messages: messages.map((msg: any) => ({
+          id: msg._id,
           displayName: msg.userDisplayName,
           content: MessageEncryption.decrypt(msg.encryptedContent),
           postedAt: msg.createdAt,
@@ -167,6 +169,135 @@ export const messageControllers = {
 
     } catch (error) {
       console.error("Error getting message count:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
+  /**
+   * Get community statistics
+   */
+  async getCommunityStats(req: Request, res: Response) {
+    try {
+      // Get total number of registered users (members)
+      const totalMembers = await User.countDocuments();
+
+      // Get number of users who have logged in within the last hour (online)
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const onlineUsers = await User.countDocuments({
+        updatedAt: { $gte: oneHourAgo }
+      });
+
+      // Get total number of messages posted
+      const totalMessages = await Message.countDocuments({ isActive: true });
+
+      // Get messages posted today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const messagesToday = await Message.countDocuments({
+        createdAt: { $gte: today },
+        isActive: true
+      });
+
+      // Get creation date of the first user (community creation date)
+      const firstUser = await User.findOne().sort({ createdAt: 1 });
+      const communityCreated = firstUser ? firstUser.createdAt : new Date();
+
+      res.json({
+        totalMembers,
+        onlineUsers,
+        totalMessages,
+        messagesToday,
+        communityCreated
+      });
+
+    } catch (error) {
+      console.error("Error getting community stats:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
+  /**
+   * Toggle like on a message
+   */
+  async toggleLike(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { messageId } = req.params;
+      const userId = req.user._id;
+
+      const message = await Message.findById(messageId);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      // Check if user already liked this message
+      const isLiked = message.likedBy?.includes(userId) || false;
+
+      if (isLiked) {
+        // Unlike: remove user from likedBy array
+        await Message.findByIdAndUpdate(messageId, {
+          $pull: { likedBy: userId },
+          $inc: { likeCount: -1 }
+        });
+      } else {
+        // Like: add user to likedBy array
+        await Message.findByIdAndUpdate(messageId, {
+          $addToSet: { likedBy: userId },
+          $inc: { likeCount: 1 }
+        });
+      }
+
+      res.json({
+        liked: !isLiked,
+        message: !isLiked ? "Message liked" : "Message unliked"
+      });
+
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
+  /**
+   * Report a message
+   */
+  async reportMessage(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { messageId } = req.params;
+      const userId = req.user._id;
+      const { reason } = req.body;
+
+      const message = await Message.findById(messageId);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      // Check if user already reported this message
+      const alreadyReported = message.reportedBy?.includes(userId) || false;
+      if (alreadyReported) {
+        return res.status(400).json({ error: "Message already reported by you" });
+      }
+
+      // Add report
+      await Message.findByIdAndUpdate(messageId, {
+        $addToSet: { reportedBy: userId },
+        $push: { reports: { userId, reason: reason || "No reason provided", reportedAt: new Date() } },
+        $inc: { reportCount: 1 }
+      });
+
+      res.json({
+        message: "Message reported successfully"
+      });
+
+    } catch (error) {
+      console.error("Error reporting message:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }

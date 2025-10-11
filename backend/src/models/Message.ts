@@ -25,6 +25,33 @@ const MessageSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    likedBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }],
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
+    reportedBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }],
+    reports: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      },
+      reason: String,
+      reportedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { 
     timestamps: true,

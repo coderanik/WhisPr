@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WhisPr Frontend
 
-## Getting Started
+A modern, anonymous messaging platform built with Next.js and TypeScript.
 
-First, run the development server:
+## 🔐 Anonymous Authentication System
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The frontend has been updated to work with the new anonymous authentication system:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Registration**: Users only need to provide their registration number and password
+- **Anonymous Names**: Automatically generated and displayed throughout the interface
+- **Login**: Simple authentication using registration number and password
+- **Privacy**: No personal names are ever collected or displayed
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Anonymous Messaging**: Post messages using your generated anonymous name
+- **Real-time Updates**: Messages appear instantly after posting
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Secure Authentication**: JWT-based authentication with session management
+- **Modern UI**: Clean, intuitive interface with smooth animations
 
-## Learn More
+## 🛠️ Technology Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+- **HTTP Client**: Native fetch API with custom wrapper
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📱 Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Forum** (`/forum`): View and post anonymous messages
+- **My Messages** (`/my-messages`): View your own messages
+- **Login** (`/login`): Authenticate with regNo and password
+- **Register** (`/register`): Create account with regNo and password
 
-## Deploy on Vercel
+## 🔧 Getting Started
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerequisites
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Node.js 18+ 
+- Backend server running on port 3001
+
+### Installation
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Set environment variables:
+   ```bash
+   # Create .env.local file
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🔄 API Integration
+
+The frontend communicates with the backend API endpoints:
+
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User authentication
+- `POST /api/auth/logout` - User logout
+- `GET /api/messages/forum` - Get public messages
+- `POST /api/messages/create` - Create new message
+- `GET /api/messages/my-messages` - Get user's messages
+
+## 🎨 UI Components
+
+- **Navbar**: Navigation with user authentication status
+- **MessageForm**: Form for posting new messages
+- **MessageCard**: Display individual messages
+- **Toast**: Notification system for user feedback
+- **AuthContext**: Authentication state management
+
+## 🔒 Security Features
+
+- **Anonymous Names**: No personal information is ever displayed
+- **JWT Tokens**: Secure authentication with automatic token management
+- **Session Persistence**: Login state maintained across browser sessions
+- **Input Validation**: Client-side validation for all forms
+
+## 📱 Responsive Design
+
+- **Mobile First**: Optimized for mobile devices
+- **Desktop Optimized**: Enhanced experience on larger screens
+- **Touch Friendly**: Optimized for touch interactions
+- **Accessibility**: Screen reader friendly with proper ARIA labels
+
+## 🚀 Deployment
+
+The frontend can be deployed to any platform that supports Next.js:
+
+- **Vercel**: Recommended for Next.js applications
+- **Netlify**: Static site generation support
+- **AWS Amplify**: Full-stack deployment
+- **Docker**: Containerized deployment
+
+## 🧪 Testing
+
+To test the frontend with the backend:
+
+1. Start the backend server: `cd backend && npm run dev`
+2. Start the frontend: `npm run dev`
+3. Navigate to the registration page
+4. Create an account with your registration number
+5. Login and start posting anonymous messages
+
+## 🔄 Recent Updates
+
+- ✅ Removed username field from registration and login
+- ✅ Updated to use anonymous names throughout the interface
+- ✅ Simplified authentication flow
+- ✅ Enhanced privacy protection
+- ✅ Improved user experience with clear messaging
+
+## 📞 Support
+
+For issues or questions:
+1. Check the backend logs for API errors
+2. Verify the backend server is running on port 3001
+3. Check browser console for frontend errors
+4. Ensure environment variables are properly set

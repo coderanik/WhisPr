@@ -2,13 +2,13 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { apiPost } from "@/utils/api";
-import { useToast } from "./Toast";
+import toast from "react-hot-toast";
 
 interface AuthContextType {
-  user: { name: string } | null;
+  user: { anonymousName: string } | null;
   token: string | null;
-  login: (name: string, regNo: string, password: string) => Promise<void>;
-  register: (name: string, regNo: string, password: string) => Promise<void>;
+  login: (regNo: string, password: string) => Promise<void>;
+  register: (regNo: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -23,9 +23,8 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ anonymousName: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   useEffect(() => {
     const stored = localStorage.getItem("auth");
@@ -36,25 +35,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = async (name: string, regNo: string, password: string) => {
+  const login = async (regNo: string, password: string) => {
     try {
-      const res = await apiPost("/api/auth/login", { name,regNo, password });
-      setUser({ name: res.name });
+      const res = await apiPost("/api/auth/login", { regNo, password });
+      setUser({ anonymousName: res.anonymousName });
       setToken(res.token);
-      localStorage.setItem("auth", JSON.stringify({ user: { name: res.name }, token: res.token }));
-      showToast("Logged in!", "success");
+      localStorage.setItem("auth", JSON.stringify({ 
+        user: { anonymousName: res.anonymousName }, 
+        token: res.token 
+      }));
+      toast.success("Logged in!");
     } catch (err: any) {
-      showToast(err.message || "Login failed", "error");
+      toast.error(err.message || "Login failed");
       throw err;
     }
   };
 
-  const register = async (name: string, regNo: string, password: string) => {
+  const register = async (regNo: string, password: string) => {
     try {
-      await apiPost("/api/auth/register", { name, regNo, password });
-      showToast("Registered! Please login.", "success");
+      const res = await apiPost("/api/auth/register", { regNo, password });
+      toast.success(`Registered successfully! Your anonymous name is: ${res.anonymousName}`);
     } catch (err: any) {
-      showToast(err.message || "Registration failed", "error");
+      toast.error(err.message || "Registration failed");
       throw err;
     }
   };
@@ -66,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setToken(null);
     localStorage.removeItem("auth");
-    showToast("Logged out", "success");
+    toast.success("Logged out");
   };
 
   return (

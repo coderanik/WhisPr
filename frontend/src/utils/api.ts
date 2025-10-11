@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export async function apiGet(path: string, token?: string) {
   try {
@@ -9,15 +9,20 @@ export async function apiGet(path: string, token?: string) {
     });
     
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ message: `HTTP ${res.status}: ${res.statusText}` }));
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (parseError) {
+        errorData = { message: `HTTP ${res.status}: ${res.statusText}` };
+      }
       console.error("API GET error:", errorData);
-      throw errorData;
+      throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`);
     }
     
     const data = await res.json();
     console.log(`GET response from ${path}:`, data);
     return data;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Error in apiGet(${path}):`, error);
     throw error;
   }
@@ -37,15 +42,20 @@ export async function apiPost(path: string, data: any, token?: string) {
     });
     
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ message: `HTTP ${res.status}: ${res.statusText}` }));
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (parseError) {
+        errorData = { message: `HTTP ${res.status}: ${res.statusText}` };
+      }
       console.error("API POST error:", errorData);
-      throw errorData;
+      throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`);
     }
     
     const responseData = await res.json();
     console.log(`POST response from ${path}:`, responseData);
     return responseData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Error in apiPost(${path}):`, error);
     throw error;
   }

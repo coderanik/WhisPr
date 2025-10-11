@@ -1,7 +1,10 @@
 import CryptoJS from "crypto-js";
 
-// Encryption key - in production, this should be stored in environment variables
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "your-super-secret-encryption-key-32-chars";
+// Encryption key - must be stored in environment variables
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+if (!ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY environment variable is required');
+}
 
 export class MessageEncryption {
   /**

@@ -64,13 +64,11 @@ class StartupManager {
       console.log("🔄 Attempting to connect to Redis...");
       
       const redisClient = createClient({
-        username: process.env.NODE_ENV === 'production' ? 'default' : undefined,
-        password: process.env.NODE_ENV === 'production' ? '3LaIN6E2mNFBrEn1xXHgn9snIzt2Wn4f' : undefined,
+        username: process.env.REDIS_USERNAME || undefined,
+        password: process.env.REDIS_PASSWORD || undefined,
         socket: {
-          host: process.env.NODE_ENV === 'production' 
-            ? 'redis-13091.c8.us-east-1-4.ec2.redns.redis-cloud.com' 
-            : '127.0.0.1',
-          port: process.env.NODE_ENV === 'production' ? 13091 : 6379,
+          host: process.env.REDIS_HOST || '127.0.0.1',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
           connectTimeout: 5000,
         }
       });
