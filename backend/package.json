@@ -8,7 +8,8 @@
     "build": "npm install && tsc",
     "start": "node dist/server.js",
     "setup-redis": "./setup-redis.sh",
-    "redis-status": "redis-cli ping"
+    "redis-status": "redis-cli ping",
+    "fix-db": "node scripts/fix-production-db.js"
   },
   "keywords": [],
   "author": "coderanik",
