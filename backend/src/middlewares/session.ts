@@ -72,11 +72,24 @@ const initRedis = async () => {
 // Initialize Redis immediately
 initRedis().catch(console.error);
 
+// Get session secret with fallback for development
+const getSessionSecret = (): string => {
+  if (process.env.SESSION_SECRET) {
+    return process.env.SESSION_SECRET;
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET environment variable is required in production');
+  }
+  
+  // Development fallback
+  console.warn('⚠️  Using default session secret for development. Set SESSION_SECRET for production.');
+  return 'dev-session-secret-whispr-2024';
+};
+
 const sessionMiddleware = session({
-  store: redisStore || undefined, // Use Redis store if available, otherwise use memory store
-  secret: process.env.SESSION_SECRET || (() => {
-    throw new Error('SESSION_SECRET environment variable is required');
-  })(),
+  store: redisStore || undefined, // Use Redis store if available, otherwise use default memory store
+  secret: getSessionSecret(),
   resave: false,
   saveUninitialized: false,
   cookie: {

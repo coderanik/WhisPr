@@ -2,12 +2,23 @@ import CryptoJS from "crypto-js";
 
 // Encryption key - must be stored in environment variables
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
-if (!ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY environment variable is required');
-}
 
-// Type assertion to ensure ENCRYPTION_KEY is never undefined
-const encryptionKey: string = ENCRYPTION_KEY;
+// Generate a default encryption key for development if not provided
+const getEncryptionKey = (): string => {
+  if (ENCRYPTION_KEY) {
+    return ENCRYPTION_KEY;
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ENCRYPTION_KEY environment variable is required in production');
+  }
+  
+  // Development fallback - use a consistent key
+  console.warn('⚠️  Using default encryption key for development. Set ENCRYPTION_KEY for production.');
+  return 'dev-encryption-key-whispr-2024';
+};
+
+const encryptionKey: string = getEncryptionKey();
 
 export class MessageEncryption {
   /**

@@ -40,10 +40,34 @@ A secure, anonymous messaging platform backend built with Node.js, Express, and 
    ```
 
 3. Set up environment variables:
+   
+   **Required Environment Variables:**
    ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
+   # Server Configuration
+   PORT=3001
+   NODE_ENV=development
+   
+   # Database Configuration
+   MONGO_URI=mongodb://localhost:27017/whispr
+   
+   # Session Configuration (REQUIRED in production)
+   SESSION_SECRET=your-super-secret-session-key-here
+   
+   # Encryption Configuration (REQUIRED in production)
+   ENCRYPTION_KEY=your-super-secret-encryption-key-here
+   
+   # Redis Configuration (optional - will fallback to memory store if not available)
+   REDIS_HOST=127.0.0.1
+   REDIS_PORT=6379
+   REDIS_USERNAME=
+   REDIS_PASSWORD=
+   REDIS_DISABLED=false
    ```
+   
+   **Development Notes:**
+   - For development, default values will be used if SESSION_SECRET and ENCRYPTION_KEY are not set
+   - In production, SESSION_SECRET and ENCRYPTION_KEY are REQUIRED
+   - Use strong, random values for both keys in production
 
 4. Set up Redis:
    ```bash
