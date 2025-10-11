@@ -28,11 +28,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Add pre-save hook to debug what's being saved
-UserSchema.pre('save', function(next) {
-  console.log('🔍 Pre-save hook - Document data:', this.toObject());
-  next();
-});
+// Pre-save hook removed - no longer needed for debugging
 
 // Force clear any cached models
 if (mongoose.models.User) {
