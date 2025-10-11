@@ -39,6 +39,9 @@ class StartupManager {
       await mongoose.connect(mongoUri, options);
       console.log("✅ MongoDB connected successfully");
       
+      // Fix database indexes on startup (production fix)
+      await this.fixDatabaseIndexes();
+      
       mongoose.connection.on('error', (err) => {
         console.error('❌ MongoDB connection error:', err);
       });
@@ -51,6 +54,48 @@ class StartupManager {
     } catch (error) {
       console.error("❌ MongoDB connection failed:", error);
       return false;
+    }
+  }
+
+  private async fixDatabaseIndexes(): Promise<void> {
+    try {
+      console.log("🔧 Checking and fixing database indexes...");
+      const db = mongoose.connection.db;
+      if (!db) {
+        console.log("⚠️  Database connection not available, skipping index fix");
+        return;
+      }
+      const usersCollection = db.collection('users');
+
+      // Check if there's a problematic 'name' index and drop it
+      const indexes = await usersCollection.indexes();
+      const nameIndex = indexes.find(index => index.key.name !== undefined);
+      
+      if (nameIndex) {
+        console.log("⚠️  Found problematic 'name' index, dropping it...");
+        try {
+          await usersCollection.dropIndex('name_1');
+          console.log("✅ Dropped 'name_1' index");
+        } catch (error: any) {
+          console.log("⚠️  Could not drop name_1 index:", error.message);
+        }
+      }
+
+      // Remove any 'name' fields from existing documents
+      const documentsWithName = await usersCollection.find({ name: { $exists: true } }).toArray();
+      if (documentsWithName.length > 0) {
+        console.log(`⚠️  Found ${documentsWithName.length} documents with 'name' field, removing it...`);
+        await usersCollection.updateMany(
+          { name: { $exists: true } },
+          { $unset: { name: 1 } }
+        );
+        console.log("✅ Removed 'name' field from all documents");
+      }
+
+      console.log("✅ Database indexes fixed successfully");
+    } catch (error) {
+      console.error("⚠️  Database fix failed (non-critical):", error);
+      // Don't throw error - this is non-critical
     }
   }
 
