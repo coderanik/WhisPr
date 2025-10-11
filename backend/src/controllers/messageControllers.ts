@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import Message from "../models/Message";
 import User from "../models/User";
 import { MessageEncryption } from "../utils/encryption";
@@ -234,18 +235,18 @@ export const messageControllers = {
       }
 
       // Check if user already liked this message
-      const isLiked = message.likedBy?.includes(userId) || false;
+      const isLiked = message.likedBy?.includes(new mongoose.Types.ObjectId(userId)) || false;
 
       if (isLiked) {
         // Unlike: remove user from likedBy array
         await Message.findByIdAndUpdate(messageId, {
-          $pull: { likedBy: userId },
+          $pull: { likedBy: new mongoose.Types.ObjectId(userId) },
           $inc: { likeCount: -1 }
         });
       } else {
         // Like: add user to likedBy array
         await Message.findByIdAndUpdate(messageId, {
-          $addToSet: { likedBy: userId },
+          $addToSet: { likedBy: new mongoose.Types.ObjectId(userId) },
           $inc: { likeCount: 1 }
         });
       }
@@ -280,15 +281,15 @@ export const messageControllers = {
       }
 
       // Check if user already reported this message
-      const alreadyReported = message.reportedBy?.includes(userId) || false;
+      const alreadyReported = message.reportedBy?.includes(new mongoose.Types.ObjectId(userId)) || false;
       if (alreadyReported) {
         return res.status(400).json({ error: "Message already reported by you" });
       }
 
       // Add report
       await Message.findByIdAndUpdate(messageId, {
-        $addToSet: { reportedBy: userId },
-        $push: { reports: { userId, reason: reason || "No reason provided", reportedAt: new Date() } },
+        $addToSet: { reportedBy: new mongoose.Types.ObjectId(userId) },
+        $push: { reports: { userId: new mongoose.Types.ObjectId(userId), reason: reason || "No reason provided", reportedAt: new Date() } },
         $inc: { reportCount: 1 }
       });
 

@@ -6,13 +6,16 @@ if (!ENCRYPTION_KEY) {
   throw new Error('ENCRYPTION_KEY environment variable is required');
 }
 
+// Type assertion to ensure ENCRYPTION_KEY is never undefined
+const encryptionKey: string = ENCRYPTION_KEY;
+
 export class MessageEncryption {
   /**
    * Encrypt message content
    */
   static encrypt(content: string): string {
     try {
-      const encrypted = CryptoJS.AES.encrypt(content, ENCRYPTION_KEY).toString();
+      const encrypted = CryptoJS.AES.encrypt(content, encryptionKey).toString();
       return encrypted;
     } catch (error) {
       throw new Error("Encryption failed");
@@ -24,7 +27,7 @@ export class MessageEncryption {
    */
   static decrypt(encryptedContent: string): string {
     try {
-      const decrypted = CryptoJS.AES.decrypt(encryptedContent, ENCRYPTION_KEY);
+      const decrypted = CryptoJS.AES.decrypt(encryptedContent, encryptionKey);
       const originalText = decrypted.toString(CryptoJS.enc.Utf8);
       
       if (!originalText) {
