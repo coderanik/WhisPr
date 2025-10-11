@@ -67,17 +67,17 @@ export default function MessageCard({ messageId, userDisplayName, content, date 
       className="glass-card p-4 relative message-card animate-float-in group hover:shadow-lg transition-shadow duration-200"
     >
       {/* Header with user info and time */}
-      <div className="flex items-center space-x-2 mb-3">
-        <div className="w-7 h-7 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+      <div className="flex items-center space-x-2 mb-3 flex-wrap">
+        <div className="w-6 h-6 lg:w-7 lg:h-7 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
           <span className="text-xs font-bold text-white">
             {userDisplayName.charAt(0).toUpperCase()}
           </span>
         </div>
         <span className="text-sm font-medium text-gray-300">u/{userDisplayName}</span>
-        <span className="text-gray-500">•</span>
+        <span className="text-gray-500 hidden sm:inline">•</span>
         <span className="text-xs text-gray-400">{formatTimeAgo(date)}</span>
-        <span className="text-gray-500">•</span>
-        <span className="text-xs text-gray-400">r/WhisPr</span>
+        <span className="text-gray-500 hidden sm:inline">•</span>
+        <span className="text-xs text-gray-400 hidden sm:inline">r/WhisPr</span>
       </div>
 
       {/* Message content */}
@@ -86,7 +86,7 @@ export default function MessageCard({ messageId, userDisplayName, content, date 
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center space-x-6 text-sm">
+      <div className="flex items-center space-x-4 lg:space-x-6 text-sm">
         <button className="flex items-center space-x-1 text-gray-400 hover:text-gray-300 transition-colors duration-200 px-2 py-1 rounded-full hover:bg-gray-700/50">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />

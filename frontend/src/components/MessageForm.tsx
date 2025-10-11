@@ -47,7 +47,7 @@ export default function MessageForm({ onMessageSent }: MessageFormProps) {
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
       <div className="relative">
         <textarea
-          className="w-full resize-none min-h-[120px] text-base bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-4 focus:outline-none focus:border-white/50 focus:bg-white/20 transition-all duration-300 placeholder-gray-400 text-gray-200"
+          className="w-full resize-none min-h-[100px] lg:min-h-[120px] text-sm lg:text-base bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-3 lg:p-4 focus:outline-none focus:border-white/50 focus:bg-white/20 transition-all duration-300 placeholder-gray-400 text-gray-200"
           placeholder="What's on your mind? Share your thoughts anonymously..."
           value={content}
           onChange={e => setContent(e.target.value)}
@@ -59,7 +59,7 @@ export default function MessageForm({ onMessageSent }: MessageFormProps) {
           {content.length}/1000
         </div>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex items-center space-x-2 text-sm text-gray-400">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -68,7 +68,7 @@ export default function MessageForm({ onMessageSent }: MessageFormProps) {
         </div>
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 font-semibold rounded-full transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl group"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 lg:px-6 py-2 font-semibold rounded-full transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl group w-full sm:w-auto"
           disabled={loading || !content.trim()}
         >
           <span className="flex items-center justify-center space-x-2">

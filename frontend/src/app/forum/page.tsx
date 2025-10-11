@@ -138,11 +138,11 @@ export default function ForumPage() {
 
   return (
     <main className="min-h-screen bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-2 lg:px-4 py-4 lg:py-6">
         {/* Reddit-style layout */}
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Main content area */}
-          <div className="flex-1 max-w-4xl">
+          <div className="flex-1 max-w-4xl order-1 lg:order-1">
             {/* Header */}
             <div className="mb-6">
               <p className="text-gray-400">Anonymous discussions and thoughts</p>
@@ -199,42 +199,42 @@ export default function ForumPage() {
           </div>
           
           {/* Right sidebar */}
-          <div className="w-80 space-y-4">
+          <div className="w-full lg:w-80 space-y-4 order-2 lg:order-2">
             {/* Community info */}
-            <div className="glass-card p-4">
+            <div className="glass-card p-3 lg:p-4">
               <div className="flex items-center space-x-2 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">W</span>
+                <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xs lg:text-sm">W</span>
                 </div>
-                <h2 className="font-semibold text-white">r/WhisPr</h2>
+                <h2 className="font-semibold text-white text-base lg:text-lg">r/WhisPr</h2>
               </div>
               <p className="text-gray-300 text-sm mb-4">
                 A secure, anonymous platform for sharing thoughts and discussions. 
                 Your identity is protected with anonymous names.
               </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-400">
-                  <span>Created</span>
-                  <span>{stats.communityCreated.toLocaleDateString()}</span>
+              <div className="grid grid-cols-2 gap-2 text-xs lg:text-sm">
+                <div className="flex flex-col">
+                  <span className="text-gray-400">Created</span>
+                  <span className="text-white font-medium">{stats.communityCreated.toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Members</span>
-                  <span>{stats.totalMembers}</span>
+                <div className="flex flex-col">
+                  <span className="text-gray-400">Members</span>
+                  <span className="text-white font-medium">{stats.totalMembers}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Online</span>
-                  <span className="text-green-400">● {stats.onlineUsers}</span>
+                <div className="flex flex-col">
+                  <span className="text-gray-400">Online</span>
+                  <span className="text-green-400 font-medium">● {stats.onlineUsers}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Posts Today</span>
-                  <span>{stats.messagesToday}</span>
+                <div className="flex flex-col">
+                  <span className="text-gray-400">Posts Today</span>
+                  <span className="text-white font-medium">{stats.messagesToday}</span>
                 </div>
               </div>
             </div>
             
             {/* Rules */}
-            <div className="glass-card p-4">
-              <h3 className="font-semibold text-white mb-3">Community Rules</h3>
+            <div className="glass-card p-3 lg:p-4">
+              <h3 className="font-semibold text-white mb-3 text-sm lg:text-base">Community Rules</h3>
               <ul className="space-y-2 text-sm text-gray-300">
                 <li className="flex items-start space-x-2">
                   <span className="text-gray-500">1.</span>
@@ -268,17 +268,17 @@ export default function ForumPage() {
             form.classList.add('fixed', 'inset-0', 'z-50', 'flex', 'items-center', 'justify-center');
           }
         }}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group z-40"
+        className="fixed bottom-4 right-4 lg:bottom-6 lg:right-6 w-12 h-12 lg:w-14 lg:h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group z-40"
       >
-        <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 lg:w-6 lg:h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       </button>
       
       {/* Modal for creating posts */}
       <div id="post-form-modal" className="hidden">
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="glass-card p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 lg:p-4 z-50">
+          <div className="glass-card p-4 lg:p-6 w-full max-w-2xl max-h-[90vh] lg:max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-white">Create Post</h2>
               <button
