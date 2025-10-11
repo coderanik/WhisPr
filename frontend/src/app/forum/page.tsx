@@ -142,7 +142,7 @@ export default function ForumPage() {
         {/* Reddit-style layout */}
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Main content area */}
-          <div className="flex-1 max-w-4xl order-1 lg:order-1">
+          <div className="flex-1 w-full lg:max-w-4xl">
             {/* Header */}
             <div className="mb-6">
               <p className="text-gray-400">Anonymous discussions and thoughts</p>
@@ -199,7 +199,7 @@ export default function ForumPage() {
           </div>
           
           {/* Right sidebar */}
-          <div className="w-full lg:w-80 space-y-4 order-2 lg:order-2">
+          <div className="hidden lg:block w-80 space-y-4">
             {/* Community info */}
             <div className="glass-card p-3 lg:p-4">
               <div className="flex items-center space-x-2 mb-3">
