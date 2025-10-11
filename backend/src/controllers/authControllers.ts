@@ -105,21 +105,21 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // ⏱ Filter loginAttempts within last hour
+    // ⏱ Filter loginAttempts within last 2 minutes
     const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
 
     // Handle loginAttempts array properly - convert to regular array
     let filteredAttempts: Date[] = [];
     if (user.loginAttempts && Array.isArray(user.loginAttempts)) {
       filteredAttempts = user.loginAttempts
         .map((attempt: any) => new Date(attempt))
-        .filter((attempt: Date) => attempt > oneHourAgo);
+        .filter((attempt: Date) => attempt > twoMinutesAgo);
     }
 
     if (filteredAttempts.length >= 5) {
       return res.status(429).json({
-        message: 'Too many login attempts. Try again after 1 hour.',
+        message: 'Too many login attempts. Try again after 1 minute.',
       });
     }
 
